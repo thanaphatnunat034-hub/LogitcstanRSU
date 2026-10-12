@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="LogiPocket">
+<meta name="theme-color" content="#0b2545">
+<title>LogiPocket Student</title>
+<style>
+:root{--navy:#0b2545;--blue:#1d4ed8;--bg:#f1f5fb;--ink:#1e293b;--mut:#64748b;--ok:#15803d;--warn:#c2410c;--line:#dbe3ef}
+*{box-sizing:border-box}
+body{margin:0;font-family:'Sarabun','Noto Sans Thai','Thonburi','Tahoma',sans-serif;background:var(--bg);color:var(--ink);line-height:1.65;padding-bottom:90px;overflow-wrap:anywhere}
+header{background:var(--navy);color:#fff;padding:calc(env(safe-area-inset-top,0px) + 12px) 16px 12px;display:flex;align-items:center;gap:10px}
+.logo{width:38px;height:38px;border-radius:10px;background:var(--blue);display:grid;place-items:center;font-weight:700;border-bottom:4px solid #f97316}
+header b{font-size:1.15rem}header small{display:block;opacity:.75;line-height:1.2}
+main{max-width:760px;margin:0 auto;padding:16px}
+.card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+button.card{width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer;display:block}
+h2{margin:0 0 8px;font-size:1.3rem;color:var(--navy)}h3{margin:14px 0 6px;font-size:1.05rem;color:var(--navy)}p{margin:6px 0}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
+.grid .card{margin:0}
+.btn{min-height:48px;padding:10px 16px;border:0;border-radius:12px;background:var(--blue);color:#fff;font:inherit;font-weight:600;cursor:pointer;margin:6px 6px 0 0}
+.btn.sec{background:#e2e8f0;color:var(--navy)}.btn.ok{background:var(--ok)}.btn.warn{background:var(--warn)}
+input,select{width:100%;min-height:48px;font:inherit;font-size:16px;padding:8px 12px;border:1px solid #b6c3d8;border-radius:10px;background:#fff;color:var(--ink)}
+label{display:block;font-weight:600;margin:12px 0 4px}
+nav{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom,0px)}
+nav button{flex:1;min-height:58px;border:0;border-top:3px solid transparent;background:none;font:inherit;font-size:.78rem;color:var(--mut);cursor:pointer}
+nav button.on{color:var(--blue);font-weight:700;border-top-color:var(--blue)}
+.res,.note{border-left:5px solid var(--ok);background:#ecfdf5;padding:12px;border-radius:10px;margin-top:12px}
+.res.err,.note.w{border-left-color:var(--warn);background:#fff7ed}
+.big{font-size:1.5rem;font-weight:700;color:var(--ok)}
+.formula{background:#eff6ff;padding:10px 12px;border-radius:10px;font-weight:600;color:var(--navy)}
+.opt{display:block;width:100%;text-align:left;margin:8px 0;padding:12px;background:#fff;border:2px solid var(--line);border-radius:12px;font:inherit;color:var(--ink);cursor:pointer;min-height:48px}
+.opt.sel{border-color:var(--blue);background:#eff6ff}.opt.good{border-color:var(--ok);background:#ecfdf5}.opt.bad{border-color:var(--warn);background:#fff7ed}
+.bar{height:10px;background:#e2e8f0;border-radius:6px;overflow:hidden;margin:6px 0 12px}.bar i{display:block;height:100%;background:var(--ok)}
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:6px}
+.chip{flex:none;min-height:44px;padding:8px 16px;border-radius:22px;border:1px solid #b6c3d8;background:#fff;font:inherit;cursor:pointer}
+.chip.on{background:var(--navy);color:#fff;border-color:var(--navy)}
+.tag{display:inline-block;margin-left:8px;padding:0 10px;border-radius:10px;background:#dcfce7;color:var(--ok);font-size:.8rem}
+.stat{font-size:1.4rem;font-weight:700;color:var(--navy)}
+table{width:100%;border-collapse:collapse;font-size:.92rem}td,th{border-bottom:1px solid var(--line);padding:6px 4px;text-align:left}
+ul{padding-left:20px;margin:6px 0}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #f97316;outline-offset:2px}
+@media(min-width:700px){.grid{grid-template-columns:repeat(4,1fr)}}
+textarea{width:100%;font:inherit;font-size:16px;padding:10px;border:1px solid #b6c3d8;border-radius:10px;color:var(--ink)}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:84px;background:var(--navy);color:#fff;padding:10px 18px;border-radius:20px;z-index:20;display:none;max-width:90%}
+.ov{position:fixed;inset:0;background:rgba(11,37,69,.6);display:grid;place-items:center;padding:20px;z-index:30}.ov .card{max-width:420px;width:100%;margin:0}
+.late{color:var(--warn);font-weight:700}
+</style>
+</head>
+<body>
+<header><div class="logo" aria-hidden="true">LP</div><div><b>LogiPocket Student</b><small>ผู้ช่วยนักศึกษาโลจิสติกส์และซัพพลายเชน</small></div></header>
+<main id="app"></main>
+<nav aria-label="เมนูหลัก">
+<button data-act="go" data-v="home">หน้าแรก</button>
+<button data-act="go" data-v="tools">คำนวณ</button>
+<button data-act="go" data-v="dict">ศัพท์</button>
+<button data-act="go" data-v="work">ของฉัน</button>
+<button data-act="go" data-v="more">เพิ่มเติม</button>
+</nav>
+<script>
+'use strict';
+/* ---------- Storage (ปลอดภัยแม้ localStorage ใช้ไม่ได้) ---------- */
+var mem={},LSOK=true;
+try{localStorage.setItem('lps_t','1');localStorage.removeItem('lps_t')}catch(e){LSOK=false}
+var store={
+ get:function(k,d){if(LSOK){try{var v=localStorage.getItem('lps_'+k);if(v!==null)return JSON.parse(v)}catch(e){}}return (k in mem)?mem[k]:d},
+ set:function(k,v){mem[k]=v;if(LSOK){try{localStorage.setItem('lps_'+k,JSON.stringify(v))}catch(e){LSOK=false}}}
+};
+var S={read:store.get('read',[]),best:store.get('best',0),done:store.get('done',0),game:store.get('game',0)};
+if(!Array.isArray(S.read))S.read=[];
+['best','done','game'].forEach(function(k){if(typeof S[k]!=='number'||!isFinite(S[k]))S[k]=0});
+function save(){for(var k in S)store.set(k,S[k])}
+
+/* ---------- Helpers ---------- */
+function $(id){return document.getElementById(id)}
+function fmt(n,d){return Number(n).toLocaleString('th-TH',{maximumFractionDigits:d==null?4:d})}
+function num(s){var t=String(s).trim().replace(/,/g,'');if(t==='')return NaN;return Number(t)}
+function shuffle(a){a=a.slice();for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+var ui={view:'home',tool:0,l:null,q:null,g:null,lastG:-1};
+
+/* ---------- เครื่องมือคำนวณ ---------- */
+var TOOLS=[
+{name:'CBM',title:'CBM Calculator',desc:'คำนวณปริมาตรสินค้าเป็นลูกบาศก์เมตร (CBM) ใช้คิดค่าระวางและวางแผนการบรรทุก',
+ formula:'CBM = ยาว × กว้าง × สูง (cm) × จำนวนชิ้น ÷ 1,000,000',
+ f:[['l','ความยาว (cm)'],['w','ความกว้าง (cm)'],['h','ความสูง (cm)'],['n','จำนวนชิ้น','1']],
+ calc:function(v){var c=v.l*v.w*v.h,per=c/1e6,tot=per*v.n;
+  return{rows:[['ปริมาตรต่อชิ้น',fmt(per)+' CBM'],['ปริมาตรรวม',fmt(tot)+' CBM']],
+  steps:[fmt(v.l)+' × '+fmt(v.w)+' × '+fmt(v.h)+' = '+fmt(c)+' cm³ ต่อชิ้น','หาร 1,000,000 → '+fmt(per)+' CBM ต่อชิ้น','คูณ '+fmt(v.n)+' ชิ้น → '+fmt(tot)+' CBM'],
+  note:'1 CBM = 1 ลูกบาศก์เมตร (m³) ค่านี้ยังไม่รวมช่องว่างจากการจัดเรียงหรือบรรจุภัณฑ์เพิ่มเติม'}}},
+{name:'Volumetric',title:'Volumetric Weight Calculator',desc:'คำนวณน้ำหนักตามปริมาตร (น้ำหนักเชิงปริมาตร) สำหรับงานขนส่ง',
+ formula:'Volumetric Weight (kg) = ยาว × กว้าง × สูง (cm) ÷ ตัวหาร',
+ f:[['l','ความยาว (cm)'],['w','ความกว้าง (cm)'],['h','ความสูง (cm)'],['n','จำนวนชิ้น','1']],
+ sel:['d','ตัวหาร (Divisor)',[5000,6000,4000]],
+ calc:function(v){var c=v.l*v.w*v.h,per=c/v.d,tot=per*v.n;
+  return{rows:[['น้ำหนักตามปริมาตรต่อชิ้น',fmt(per)+' kg'],['น้ำหนักตามปริมาตรรวม',fmt(tot)+' kg']],
+  steps:[fmt(v.l)+' × '+fmt(v.w)+' × '+fmt(v.h)+' = '+fmt(c)+' cm³','หารตัวหาร '+fmt(v.d)+' → '+fmt(per)+' kg ต่อชิ้น','คูณ '+fmt(v.n)+' ชิ้น → '+fmt(tot)+' kg'],
+  note:'คำเตือน: ตัวหาร (เช่น 5,000 หรือ 6,000) และวิธีคิดค่าขนส่งจริงขึ้นอยู่กับผู้ให้บริการขนส่งและรูปแบบบริการ โดยทั่วไปค่าขนส่งมักคิดจากค่าที่มากกว่าระหว่างน้ำหนักจริงกับน้ำหนักตามปริมาตร ควรตรวจสอบเงื่อนไขกับผู้ให้บริการก่อนใช้งานจริง'}}},
+{name:'Cost/Unit',title:'Cost per Unit Calculator',desc:'คำนวณต้นทุนต่อหน่วยจากต้นทุนรวม',
+ formula:'ต้นทุนต่อหน่วย = ต้นทุนรวม ÷ จำนวนหน่วย',
+ f:[['c','ต้นทุนรวม (บาท)'],['u','จำนวนหน่วย']],
+ calc:function(v){var r=v.c/v.u;
+  return{rows:[['ต้นทุนต่อหน่วย',fmt(r,2)+' บาท/หน่วย']],steps:[fmt(v.c,2)+' ÷ '+fmt(v.u)+' = '+fmt(r,2)+' บาท/หน่วย'],note:'ควรรวมต้นทุนทุกส่วนที่เกี่ยวข้อง เช่น ค่าขนส่ง ค่าคลัง และค่าแรง เพื่อให้ได้ต้นทุนที่สะท้อนความจริง'}}},
+{name:'EOQ',title:'EOQ Calculator',desc:'คำนวณปริมาณการสั่งซื้อที่ประหยัดที่สุด (Economic Order Quantity)',
+ formula:'EOQ = √((2 × D × S) ÷ H)',
+ f:[['D','D: ความต้องการต่อปี (หน่วย)'],['S','S: ต้นทุนต่อการสั่งซื้อหนึ่งครั้ง (บาท)'],['H','H: ต้นทุนเก็บรักษาต่อหน่วยต่อปี (บาท)']],
+ calc:function(v){var inner=2*v.D*v.S/v.H,q=Math.sqrt(inner),o=v.D/q;
+  return{rows:[['EOQ',fmt(q,2)+' หน่วยต่อการสั่งซื้อ'],['จำนวนครั้งที่สั่งต่อปี',fmt(o,2)+' ครั้ง'],['รอบการสั่งซื้อ',fmt(365/o,1)+' วัน (ประมาณ)']],
+  steps:['2 × '+fmt(v.D)+' × '+fmt(v.S)+' = '+fmt(2*v.D*v.S),'หารด้วย H = '+fmt(v.H)+' → '+fmt(inner,2),'ถอดรากที่สอง → '+fmt(q,2)+' หน่วย','จำนวนครั้งต่อปี = D ÷ EOQ = '+fmt(o,2)],
+  note:'ความหมาย: ถ้าสั่งครั้งละประมาณ EOQ ผลรวมของต้นทุนสั่งซื้อและต้นทุนเก็บรักษาจะต่ำที่สุดภายใต้แบบจำลอง ค่านี้เป็นค่าประมาณ โดยสมมติว่าความต้องการคงที่ ต้นทุนคงที่ ไม่มีส่วนลดตามปริมาณ และไม่เกิดการขาดสต็อก ในทางปฏิบัติอาจปัดเป็นจำนวนเต็มหรือปรับตามขนาดบรรจุ'}}}
+];
+function toolView(){
+ var t=TOOLS[ui.tool];
+ var h='<h2>เครื่องมือคำนวณ</h2><div class="chips">'+TOOLS.map(function(x,i){return '<button class="chip'+(i===ui.tool?' on':'')+'" data-act="tool" data-i="'+i+'">'+x.name+'</button>'}).join('')+'</div>';
+ h+='<div class="card"><h3 style="margin-top:0">'+t.title+'</h3><p>'+t.desc+'</p><p class="formula">'+t.formula+'</p>';
+ t.f.forEach(function(f){h+='<label for="f_'+f[0]+'">'+f[1]+'</label><input id="f_'+f[0]+'" type="text" inputmode="decimal" autocomplete="off" value="'+(f[2]||'')+'">'});
+ if(t.sel)h+='<label for="f_'+t.sel[0]+'">'+t.sel[1]+'</label><select id="f_'+t.sel[0]+'">'+t.sel[2].map(function(o){return '<option value="'+o+'">'+fmt(o)+'</option>'}).join('')+'</select>';
+ h+='<div><button class="btn" data-act="calc">คำนวณ / คำนวณใหม่</button><button class="btn sec" data-act="clear">ล้างค่า</button></div><div id="out" aria-live="polite"></div></div>';
+ return h;
+}
+function doCalc(){
+ var t=TOOLS[ui.tool],v={},bad=[],o=$('out');
+ t.f.forEach(function(f){var n=num($('f_'+f[0]).value);if(!isFinite(n)||n<=0||n>1e12)bad.push(f[1]);v[f[0]]=n});
+ if(t.sel)v[t.sel[0]]=Number($('f_'+t.sel[0]).value);
+ if(bad.length){o.innerHTML='<div class="res err"><b>ข้อมูลไม่ถูกต้อง</b><br>กรุณากรอกตัวเลขที่มากกว่า 0 ในช่อง: '+bad.join(', ')+'</div>';return}
+ var r;try{r=t.calc(v)}catch(e){o.innerHTML='<div class="res err">คำนวณไม่สำเร็จ กรุณาตรวจสอบตัวเลข</div>';return}
+ o.innerHTML='<div class="res">'+r.rows.map(function(x){return '<div>'+x[0]+'</div><div class="big">'+x[1]+'</div>'}).join('')+'<h3>วิธีคำนวณ</h3><ul>'+r.steps.map(function(s){return '<li>'+s+'</li>'}).join('')+'</ul></div><div class="note w">'+r.note+'</div>';
+}
+function doClear(){var t=TOOLS[ui.tool];t.f.forEach(function(f){$('f_'+f[0]).value=f[2]||''});if(t.sel)$('f_'+t.sel[0]).selectedIndex=0;$('out').innerHTML=''}
+
+/* ---------- บทเรียน ---------- */
+var LESS=[
+{t:'พื้นฐาน Logistics และ Supply Chain Management',
+ obj:['อธิบายความหมายของ Logistics และ SCM','แยกความแตกต่างและความเชื่อมโยงของสองคำนี้'],
+ body:['Logistics คือการวางแผน ดำเนินการ และควบคุมการไหลและการเก็บรักษาสินค้า บริการ และข้อมูล จากจุดต้นทางถึงปลายทางให้ตรงความต้องการของลูกค้า','Supply Chain Management (SCM) กว้างกว่า คือการบริหารและประสานงานทั้งเครือข่าย ตั้งแต่ซัพพลายเออร์ ผู้ผลิต ผู้กระจายสินค้า ผู้ค้าปลีก ไปจนถึงลูกค้า โดย Logistics เป็นส่วนสำคัญส่วนหนึ่งของ SCM','หมายเหตุ: ตำราแต่ละเล่มนิยามต่างกันเล็กน้อย ควรยึดนิยามตามรายวิชาของตนเอง'],
+ terms:[['Supplier','ผู้จัดหาวัตถุดิบหรือสินค้า'],['Upstream / Downstream','ต้นน้ำ / ปลายน้ำของโซ่อุปทาน'],['Lead Time','ระยะเวลาตั้งแต่สั่งจนได้รับสินค้า']],
+ ex:'ร้านกาแฟสั่งเมล็ดจากโรงคั่ว โรงคั่วสั่งจากเกษตรกร เมื่อทั้งสามฝ่ายแชร์ข้อมูลยอดขายและสต็อก จะลดทั้งของขาดและของล้น นี่คือแนวคิด SCM',
+ sum:'Logistics คือการไหลของสินค้าและข้อมูล ส่วน SCM คือการประสานงานทั้งเครือข่ายตั้งแต่ต้นน้ำถึงปลายน้ำ'},
+{t:'รูปแบบการขนส่ง: Road, Rail, Air, Sea และ Multimodal',
+ obj:['เปรียบเทียบข้อดีข้อเสียของการขนส่งแต่ละแบบ','เลือกรูปแบบการขนส่งให้เหมาะกับสินค้า'],
+ body:['Road (ทางถนน): ยืดหยุ่น ส่งถึงหน้าประตูได้ เหมาะระยะสั้นถึงกลาง','Rail (ทางราง): บรรทุกปริมาณมาก ต้นทุนต่อหน่วยค่อนข้างต่ำ แต่ขึ้นกับเส้นทางและตารางรถไฟ','Air (ทางอากาศ): เร็วที่สุดแต่ต้นทุนสูง เหมาะสินค้ามูลค่าสูง น้ำหนักเบา หรือเร่งด่วน','Sea (ทางเรือ): ต้นทุนต่อหน่วยต่ำ รับปริมาณมาก แต่ใช้เวลานาน','Multimodal: ใช้การขนส่งตั้งแต่สองรูปแบบขึ้นไปต่อเนื่องกัน มักอยู่ภายใต้สัญญาขนส่งฉบับเดียว','ค่าระวางมักคิดจากปริมาตร (CBM) หรือน้ำหนักตามปริมาตร ลองใช้เครื่องมือคำนวณในแอปนี้'],
+ terms:[['CBM','ลูกบาศก์เมตร หน่วยวัดปริมาตร'],['Door-to-door','บริการส่งถึงหน้าประตู'],['Container','ตู้คอนเทนเนอร์']],
+ ex:'ส่งสมาร์ตโฟนล็อตด่วนไปต่างประเทศมักใช้ Air แต่ส่งเฟอร์นิเจอร์จำนวนมากที่ไม่เร่งด่วนมักใช้ Sea',
+ sum:'ไม่มีรูปแบบใดดีที่สุดเสมอไป ต้องชั่งน้ำหนักระหว่างต้นทุน เวลา ปริมาณ และลักษณะสินค้า'},
+{t:'การบริหารคลังสินค้าและ WMS',
+ obj:['บอกกิจกรรมหลักในคลังสินค้า','อธิบายหน้าที่ของ WMS'],
+ body:['กิจกรรมหลักในคลัง: รับสินค้า (Receiving) จัดเก็บ (Putaway) เก็บรักษา หยิบสินค้า (Picking) บรรจุ (Packing) และจัดส่ง (Shipping)','WMS (Warehouse Management System) คือระบบซอฟต์แวร์ช่วยบริหารคลัง เช่น บันทึกตำแหน่งจัดเก็บ ติดตามสต็อก และสั่งงานหยิบสินค้า ช่วยลดความผิดพลาด','หลักการจัดการสต็อก: FIFO (เข้าก่อนออกก่อน) FEFO (หมดอายุก่อนออกก่อน) เหมาะกับสินค้าที่มีวันหมดอายุ'],
+ terms:[['Putaway','การนำสินค้าเข้าจัดเก็บตามตำแหน่ง'],['Picking','การหยิบสินค้าตามคำสั่งซื้อ'],['SKU','รหัสหน่วยสินค้าที่ใช้ติดตามสต็อก']],
+ ex:'คลังนมต้องใช้ FEFO เพื่อไม่ให้สินค้าล็อตเก่าหมดอายุก่อนถูกส่งออก',
+ sum:'คลังที่ดีคือคลังที่หาของเจอเร็ว หยิบถูก และข้อมูลสต็อกตรงกับของจริง WMS ช่วยเรื่องนี้'},
+{t:'การจัดการสินค้าคงคลัง',
+ obj:['อธิบายเหตุผลที่ต้องมีสินค้าคงคลัง','ใช้ ABC Analysis และคำนวณ Inventory Turnover'],
+ body:['สินค้าคงคลังช่วยรองรับความต้องการและความไม่แน่นอน แต่มีต้นทุน เช่น ค่าเก็บรักษา เงินทุนจม และความเสี่ยงล้าสมัย','ABC Analysis แบ่งสินค้าตามมูลค่าการใช้: กลุ่ม A รายการน้อยแต่มูลค่าสูง ควรควบคุมใกล้ชิด กลุ่ม C รายการมากแต่มูลค่าต่ำ','Inventory Turnover = ต้นทุนขาย ÷ สินค้าคงคลังเฉลี่ย ยิ่งสูงแสดงว่าสินค้าหมุนเวียนเร็ว (ต้องเทียบกับค่าเฉลี่ยของอุตสาหกรรม)'],
+ terms:[['Stockout','สินค้าขาดสต็อก'],['Carrying Cost','ต้นทุนการเก็บรักษา'],['COGS','ต้นทุนขาย']],
+ ex:'ต้นทุนขายปีละ 600,000 บาท สต็อกเฉลี่ย 100,000 บาท หมุนเวียน 6 ครั้งต่อปี หรือสต็อกอยู่ราว 2 เดือน',
+ sum:'เป้าหมายคือสต็อกพอดี ไม่ขาดจนเสียลูกค้า และไม่มากจนเงินจม'},
+{t:'EOQ, Safety Stock และ Reorder Point',
+ obj:['คำนวณ EOQ และ Reorder Point','เข้าใจสมมติฐานของแบบจำลอง'],
+ body:['EOQ = √(2DS ÷ H) โดย D คือความต้องการต่อปี S คือต้นทุนสั่งซื้อต่อครั้ง H คือต้นทุนเก็บรักษาต่อหน่วยต่อปี','สมมติฐาน EOQ: ความต้องการคงที่ ต้นทุนคงที่ ไม่มีส่วนลดปริมาณ และไม่ขาดสต็อก จึงเป็นค่าประมาณ','Safety Stock คือสต็อกสำรองรับความไม่แน่นอนของความต้องการหรือ Lead Time','Reorder Point = ความต้องการต่อวัน × Lead Time (วัน) + Safety Stock เมื่อสต็อกลดถึงจุดนี้ให้สั่งซื้อ'],
+ terms:[['Reorder Point (ROP)','จุดสั่งซื้อใหม่'],['Safety Stock','สต็อกสำรองเผื่อความไม่แน่นอน'],['Ordering Cost','ต้นทุนการสั่งซื้อ']],
+ ex:'D = 1,000 หน่วย S = 100 บาท H = 5 บาท EOQ = √(2×1,000×100÷5) = 200 หน่วย ถ้าใช้ 20 หน่วยต่อวัน Lead Time 5 วัน Safety Stock 30 หน่วย ROP = 130 หน่วย',
+ sum:'EOQ บอกว่าสั่งครั้งละเท่าไร ROP บอกว่าสั่งเมื่อไร Safety Stock คือเบาะกันชน'},
+{t:'ต้นทุนโลจิสติกส์และ KPI ที่สำคัญ',
+ obj:['จำแนกต้นทุนโลจิสติกส์หลัก','อธิบาย KPI ที่ใช้วัดผลงาน'],
+ body:['ต้นทุนโลจิสติกส์ประกอบด้วย ค่าขนส่ง ค่าคลังสินค้า ค่าเก็บรักษาสินค้าคงคลัง ต้นทุนการสั่งซื้อ และต้นทุนการบริหารจัดการ','Cost per Unit = ต้นทุนรวม ÷ จำนวนหน่วย','OTIF (On-Time In-Full) = สัดส่วนคำสั่งซื้อที่ส่งตรงเวลาและครบถ้วน','KPI อื่น: Inventory Turnover, Order Accuracy (ความถูกต้องของออเดอร์), Lead Time, Transportation Cost per Unit'],
+ terms:[['KPI','ตัวชี้วัดผลการดำเนินงาน'],['OTIF','ส่งตรงเวลาและครบถ้วน'],['Order Accuracy','ความถูกต้องของคำสั่งซื้อ']],
+ ex:'ส่ง 200 ออเดอร์ ตรงเวลาและครบ 180 ออเดอร์ OTIF = 180 ÷ 200 = 90%',
+ sum:'สิ่งที่วัดไม่ได้ก็ปรับปรุงยาก เลือก KPI ให้สอดคล้องกับเป้าหมายขององค์กร'}
+];
+function lessonsView(){
+ if(ui.l===null)return '<h2>บทเรียน</h2>'+LESS.map(function(l,i){return '<button class="card" data-act="lopen" data-i="'+i+'"><b>บทที่ '+(i+1)+'</b> '+l.t+(S.read.indexOf(i)>-1?'<span class="tag">อ่านแล้ว</span>':'')+'</button>'}).join('');
+ var l=LESS[ui.l],r=S.read.indexOf(ui.l)>-1;
+ return '<button class="btn sec" data-act="lback">กลับไปรายการบทเรียน</button><div class="card"><h2>บทที่ '+(ui.l+1)+' '+l.t+'</h2>'
+ +'<h3>วัตถุประสงค์การเรียนรู้</h3><ul>'+l.obj.map(function(x){return '<li>'+x+'</li>'}).join('')+'</ul>'
+ +'<h3>เนื้อหา</h3>'+l.body.map(function(x){return '<p>'+x+'</p>'}).join('')
+ +'<h3>ศัพท์ที่ควรรู้</h3><table>'+l.terms.map(function(x){return '<tr><th>'+x[0]+'</th><td>'+x[1]+'</td></tr>'}).join('')+'</table>'
+ +'<h3>ตัวอย่างสถานการณ์</h3><p>'+l.ex+'</p><h3>สรุปท้ายบท</h3><p>'+l.sum+'</p>'
+ +'<button class="btn ok" data-act="lread">'+(r?'ยกเลิกเครื่องหมายอ่านแล้ว':'ทำเครื่องหมายว่าอ่านแล้ว')+'</button><button class="btn" data-act="lquiz" data-i="'+ui.l+'">ทำแบบฝึกหัดบทนี้</button></div>';
+}
+
+/* ---------- แบบทดสอบ (ตัวเลือกแรกคือคำตอบที่ถูก แล้วระบบสุ่มลำดับ) ---------- */
+var QZ=[
+[0,'ข้อใดอธิบาย Logistics ได้ถูกต้องที่สุด',['การวางแผนและควบคุมการไหลของสินค้า บริการ และข้อมูลจากต้นทางถึงปลายทาง','การผลิตสินค้าให้ได้จำนวนมากที่สุด','การโฆษณาให้ลูกค้ารู้จักสินค้า','การทำบัญชีและการเงินของบริษัท'],'Logistics เน้นการไหลของสินค้า บริการ และข้อมูลให้ตรงความต้องการลูกค้า ข้ออื่นเป็นงานด้านการผลิต การตลาด และการเงิน'],
+[0,'ข้อใดแสดงความแตกต่างระหว่าง SCM กับ Logistics ได้ดีที่สุด',['SCM ครอบคลุมเครือข่ายตั้งแต่ซัพพลายเออร์ถึงลูกค้า โดย Logistics เป็นส่วนหนึ่ง','SCM คือการขนส่งอย่างเดียว','Logistics กว้างกว่า SCM เสมอ','สองคำนี้ไม่เกี่ยวข้องกัน'],'SCM มองภาพรวมทั้งเครือข่ายและการประสานงานระหว่างองค์กร ส่วน Logistics เป็นกิจกรรมสำคัญภายใน'],
+[0,'ซัพพลายเออร์วัตถุดิบอยู่ส่วนใดของโซ่อุปทานของโรงงาน',['Upstream (ต้นน้ำ)','Downstream (ปลายน้ำ)','ลูกค้าปลายทาง','ไม่อยู่ในโซ่อุปทาน'],'ผู้ส่งวัตถุดิบเข้าสู่โรงงานอยู่ฝั่งต้นน้ำ ส่วนผู้ค้าปลีกและลูกค้าอยู่ปลายน้ำ'],
+[1,'สินค้ามูลค่าสูง น้ำหนักเบา ต้องส่งด่วนข้ามประเทศ เหมาะกับการขนส่งแบบใด',['Air (ทางอากาศ)','Sea (ทางเรือ)','Rail (ทางราง)','Road เท่านั้น'],'Air เร็วที่สุด แม้ต้นทุนสูง แต่สินค้ามูลค่าสูงรับต้นทุนต่อหน่วยได้'],
+[1,'สินค้าปริมาณมาก ไม่เร่งด่วน ข้ามทวีป ต้องการต้นทุนต่อหน่วยต่ำ เหมาะกับ',['Sea (ทางเรือ)','Air (ทางอากาศ)','Courier ด่วน','รถกระบะ'],'Sea ต้นทุนต่อหน่วยต่ำและรับปริมาณมาก แลกกับเวลาที่นานกว่า'],
+[1,'กล่องขนาด 100×50×40 cm จำนวน 10 กล่อง รวมกี่ CBM',['2 CBM','0.2 CBM','20 CBM','200 CBM'],'100×50×40 = 200,000 cm³ = 0.2 CBM ต่อกล่อง × 10 กล่อง = 2 CBM'],
+[2,'WMS ย่อมาจากอะไร',['Warehouse Management System','Weight Measuring Standard','Wholesale Marketing System','Warehouse Material Storage'],'WMS คือระบบบริหารจัดการคลังสินค้า (Warehouse Management System)'],
+[2,'สินค้ามีวันหมดอายุ เช่น นม ควรเน้นหลักการใด',['FEFO/FIFO (ออกก่อนตามวันหมดอายุหรือวันรับเข้า)','LIFO (เข้าหลังออกก่อน)','สุ่มหยิบ','หยิบเฉพาะชิ้นที่อยู่หน้าสุดเสมอ'],'การออกสินค้าตามวันหมดอายุหรือวันรับเข้าช่วยลดความเสี่ยงสินค้าหมดอายุ'],
+[3,'ต้นทุนขายต่อปี 1,200,000 บาท สินค้าคงคลังเฉลี่ย 200,000 บาท อัตราหมุนเวียนสินค้าเท่าใด',['6 ครั้งต่อปี','0.17 ครั้งต่อปี','12 ครั้งต่อปี','240 ครั้งต่อปี'],'1,200,000 ÷ 200,000 = 6 ครั้งต่อปี'],
+[3,'ใน ABC Analysis สินค้ากลุ่ม A มักมีลักษณะใด',['จำนวนรายการน้อย แต่มูลค่าการใช้สูง','จำนวนรายการมาก มูลค่าต่ำ','ไม่มีการเคลื่อนไหวเลย','ราคาต่อชิ้นถูกที่สุดเสมอ'],'กลุ่ม A สำคัญที่สุดด้านมูลค่า จึงควบคุมอย่างใกล้ชิด'],
+[4,'D = 1,000 หน่วยต่อปี S = 100 บาทต่อครั้ง H = 5 บาทต่อหน่วยต่อปี EOQ เท่าใด',['200 หน่วย','100 หน่วย','400 หน่วย','2,000 หน่วย'],'EOQ = √(2×1,000×100÷5) = √40,000 = 200 หน่วย'],
+[4,'ใช้ 20 หน่วยต่อวัน Lead Time 5 วัน Safety Stock 30 หน่วย Reorder Point เท่าใด',['130 หน่วย','100 หน่วย','30 หน่วย','150 หน่วย'],'ROP = 20 × 5 + 30 = 130 หน่วย'],
+[4,'Safety Stock ใช้เพื่ออะไร',['รองรับความไม่แน่นอนของความต้องการหรือ Lead Time','ลดค่าเช่าคลัง','เพิ่มยอดขายโดยตรง','ใช้แทนการสั่งซื้อทั้งหมด'],'Safety Stock เป็นสต็อกสำรองกันของขาดเมื่อความต้องการหรือเวลาส่งผันผวน'],
+[5,'ต้นทุนรวม 50,000 บาท ส่งสินค้า 2,000 หน่วย ต้นทุนต่อหน่วยเท่าใด',['25 บาท','40 บาท','2.5 บาท','100 บาท'],'50,000 ÷ 2,000 = 25 บาทต่อหน่วย'],
+[5,'OTIF วัดอะไร',['การส่งสินค้าตรงเวลาและครบถ้วน','ต้นทุนเชื้อเพลิง','จำนวนพนักงานในคลัง','พื้นที่คลังที่ใช้'],'OTIF = On-Time In-Full คือสัดส่วนออเดอร์ที่ส่งตรงเวลาและครบ']
+];
+function startQuiz(ch){
+ var pool=QZ.filter(function(q){return ch===null||q[0]===ch});
+ ui.q={ch:ch,i:0,sc:0,sel:null,ans:false,fin:false,list:shuffle(pool).map(function(q){return{q:q[1],e:q[3],o:shuffle(q[2].map(function(t,i){return{t:t,ok:i===0}}))}})};
+ ui.view='quiz';render();window.scrollTo(0,0);
+}
+function quizView(){
+ var q=ui.q;
+ if(!q)return '<h2>แบบฝึกหัดและแบบทดสอบ</h2><div class="card"><p>แบบทดสอบ 15 ข้อ ครอบคลุม 6 บท ลำดับข้อและตัวเลือกจะสุ่มใหม่ทุกครั้ง</p><p>คะแนนสูงสุดของคุณ: <b>'+fmt(S.best,0)+'%</b> | ทำแล้ว <b>'+S.done+'</b> ครั้ง</p><button class="btn" data-act="qall">เริ่มทำแบบทดสอบทั้งหมด</button></div><h3>หรือเลือกทำทีละบท</h3>'+LESS.map(function(l,i){return '<button class="card" data-act="qch" data-i="'+i+'">บทที่ '+(i+1)+' '+l.t+'</button>'}).join('');
+ if(q.fin){var p=Math.round(q.sc/q.list.length*100);return '<div class="card"><h2>ผลการทำแบบทดสอบ</h2><p class="big">'+q.sc+' / '+q.list.length+' ('+p+'%)</p><p>'+(p>=80?'ยอดเยี่ยม! คุณเข้าใจเนื้อหาได้ดี':p>=50?'ผ่านเกณฑ์ ลองทบทวนบทที่พลาดแล้วทำใหม่':'ลองกลับไปอ่านบทเรียนอีกครั้งแล้วทำใหม่')+'</p><p>คะแนนสูงสุด: <b>'+fmt(S.best,0)+'%</b></p><button class="btn" data-act="qredo">ทำข้อสอบใหม่ (สุ่มลำดับ)</button><button class="btn sec" data-act="qend">กลับหน้าแบบทดสอบ</button></div>'}
+ var c=q.list[q.i];
+ var h='<div class="card"><p>ข้อ '+(q.i+1)+' / '+q.list.length+'</p><div class="bar"><i style="width:'+(q.i/q.list.length*100)+'%"></i></div><h3 style="margin-top:0">'+c.q+'</h3>';
+ c.o.forEach(function(o,i){var cl='opt';if(q.ans){if(o.ok)cl+=' good';else if(i===q.sel)cl+=' bad'}else if(i===q.sel)cl+=' sel';h+='<button class="'+cl+'" data-act="sel" data-i="'+i+'">'+o.t+'</button>'});
+ if(!q.ans)h+='<button class="btn" data-act="submit">ส่งคำตอบ</button><div id="qmsg" aria-live="polite"></div>';
+ else{var ok=c.o[q.sel].ok;h+='<div class="res'+(ok?'':' err')+'"><b>'+(ok?'ถูกต้อง':'ยังไม่ถูก')+'</b><br>'+c.e+'</div><button class="btn" data-act="next">'+(q.i+1>=q.list.length?'ดูคะแนน':'ข้อถัดไป')+'</button>'}
+ return h+'</div>';
+}
+function qSubmit(){var q=ui.q;if(q.sel===null){$('qmsg').innerHTML='<div class="note w">กรุณาเลือกคำตอบก่อนส่ง</div>';return}q.ans=true;if(q.list[q.i].o[q.sel].ok)q.sc++;render()}
+function qNext(){var q=ui.q;q.i++;q.sel=null;q.ans=false;if(q.i>=q.list.length){q.fin=true;var p=Math.round(q.sc/q.list.length*100);if(p>S.best)S.best=p;S.done++;save()}render();window.scrollTo(0,0)}
+
+/* ---------- เกมจำลองการวางแผนขนส่ง ---------- */
+var GM=[
+{t:'ส่งสินค้า 100 กล่องให้ลูกค้า',txt:'ต้องส่งสินค้า 100 กล่องภายใน 6 ชั่วโมง งบไม่เกิน 5,000 บาท ลูกค้าเน้นประหยัด ไม่ต้องการเร็วเกินจำเป็น',b:5000,h:6,wc:40,wt:20,p:[['A',2000,7],['B',4000,3],['C',3000,5]]},
+{t:'ส่งยาแช่เย็นไปโรงพยาบาล',txt:'ยาแช่เย็น 50 กล่อง ต้องถึงโรงพยาบาลภายใน 8 ชั่วโมง งบไม่เกิน 8,000 บาท ความรวดเร็วสำคัญมาก',b:8000,h:8,wc:15,wt:45,p:[['A',3500,10],['B',7500,4],['C',6000,7]]},
+{t:'พัสดุอีคอมเมิร์ซช่วงโปรโมชัน',txt:'พัสดุ 300 ชิ้น ต้องถึงศูนย์กระจายสินค้าภายใน 24 ชั่วโมง งบไม่เกิน 12,000 บาท',b:12000,h:24,wc:30,wt:30,p:[['A',6000,30],['B',11000,12],['C',8500,22]]},
+{t:'วัตถุดิบเข้าโรงงาน',txt:'วัตถุดิบ 20 พาเลท ต้องถึงโรงงานภายใน 72 ชั่วโมง งบไม่เกิน 30,000 บาท โรงงานมีสต็อกสำรองพอ จึงเน้นประหยัด',b:30000,h:72,wc:40,wt:20,p:[['A',15000,96],['B',28000,30],['C',20000,60]]}
+];
+function gScore(s,p){var okc=p[1]<=s.b,okt=p[2]<=s.h;if(!okc||!okt)return{s:0,ok:false,why:(okc?'':'เกินงบประมาณ ')+(okt?'':'ส่งไม่ทันกำหนด')};return{s:Math.round(40+s.wc*(1-p[1]/s.b)+s.wt*(1-p[2]/s.h)),ok:true,why:''}}
+function gameView(){
+ var g=ui.g;
+ if(!g)return '<h2>เกมจำลองการวางแผนขนส่ง</h2><div class="card"><p>เลือกแผนขนส่งให้ตรงเงื่อนไข ได้คะแนนจากความคุ้มค่าของต้นทุนและเวลา แผนที่ถูกที่สุดหรือเร็วที่สุดอาจไม่ใช่แผนที่ดีที่สุด</p><p>คะแนนสะสม: <b>'+fmt(S.game,0)+'</b></p><button class="btn" data-act="gstart">เริ่มเล่น (สุ่มสถานการณ์)</button></div>';
+ var s=GM[g.s];
+ var h='<div class="card"><h2>'+s.t+'</h2><p>'+s.txt+'</p><p>งบ: <b>'+fmt(s.b,0)+' บาท</b> | กำหนด: <b>'+s.h+' ชั่วโมง</b></p>';
+ s.p.forEach(function(p,i){var cl='opt';if(g.done){var r=gScore(s,p);cl+=i===g.sel?(r.ok?' good':' bad'):''}else if(i===g.sel)cl+=' sel';h+='<button class="'+cl+'" data-act="gsel" data-i="'+i+'">แผน '+p[0]+': ต้นทุน '+fmt(p[1],0)+' บาท ใช้เวลา '+p[2]+' ชั่วโมง</button>'});
+ if(!g.done)return h+'<button class="btn" data-act="gconfirm">ยืนยันแผน</button><div id="gmsg" aria-live="polite"></div></div>';
+ var r=gScore(s,s.p[g.sel]),all=s.p.map(function(p){return gScore(s,p)});
+ var best=0;all.forEach(function(x,i){if(x.s>all[best].s)best=i});
+ var ch=0,fa=0;s.p.forEach(function(p,i){if(p[1]<s.p[ch][1])ch=i;if(p[2]<s.p[fa][2])fa=i});
+ function d(i){return all[i].ok?'ได้ '+all[i].s+' คะแนน':'ไม่ผ่านเงื่อนไข ('+all[i].why.trim()+')'}
+ h+='<div class="res'+(r.ok?'':' err')+'"><b>คุณเลือกแผน '+s.p[g.sel][0]+': '+(r.ok?'ผ่านเงื่อนไข ได้ '+r.s+' คะแนน':'ไม่ผ่าน ('+r.why.trim()+') ได้ 0 คะแนน')+'</b></div>';
+ h+='<h3>สรุปบทเรียน</h3><ul><li>แผนที่ถูกที่สุด (แผน '+s.p[ch][0]+'): '+d(ch)+'</li><li>แผนที่เร็วที่สุด (แผน '+s.p[fa][0]+'): '+d(fa)+'</li><li>แผนที่ได้คะแนนสูงสุดคือแผน '+s.p[best][0]+' ('+all[best].s+' คะแนน)</li></ul><p>คะแนนคิดจาก 40 คะแนนเมื่อผ่านเงื่อนไขทั้งงบและเวลา บวกคะแนนความประหยัดและความเร็วตามน้ำหนักของสถานการณ์นี้ (ประหยัด '+s.wc+' / เร็ว '+s.wt+') การเลือกแผนที่ถูกที่สุดอาจส่งไม่ทัน และแผนที่เร็วที่สุดอาจจ่ายแพงเกินความจำเป็น</p><p>คะแนนสะสม: <b>'+fmt(S.game,0)+'</b></p><button class="btn" data-act="gstart">เล่นอีกครั้ง</button><button class="btn sec" data-act="gend">กลับ</button></div>';
+ return h;
+}
+function gStart(){var n;do{n=Math.floor(Math.random()*GM.length)}while(GM.length>1&&n===ui.lastG);ui.lastG=n;ui.g={s:n,sel:null,done:false};ui.view='game';render()}
+function gConfirm(){var g=ui.g;if(g.sel===null){$('gmsg').innerHTML='<div class="note w">กรุณาเลือกแผนก่อนยืนยัน</div>';return}g.done=true;S.game+=gScore(GM[g.s],GM[g.s].p[g.sel]).s;save();render()}
+
+/* ---------- หน้าแรก ---------- */
+function homeView0(){
+ var n=S.read.length,next=0;for(var i=0;i<LESS.length;i++)if(S.read.indexOf(i)<0){next=i;break}
+ var h='';
+ if(!LSOK)h+='<div class="note w">เบราว์เซอร์นี้ไม่อนุญาตให้บันทึกข้อมูลถาวร (เช่น โหมดส่วนตัว) ความคืบหน้าจะอยู่เฉพาะตอนที่เปิดหน้านี้</div>';
+ h+='<div class="card"><h2>ยินดีต้อนรับสู่ LogiPocket Student</h2><p>เครื่องมือคำนวณ บทเรียน แบบฝึกหัด และเกมจำลองการขนส่ง สำหรับนักศึกษาโลจิสติกส์ อยู่ในที่เดียว</p></div>';
+ h+='<div class="grid"><button class="card" data-act="go" data-v="tools"><b>เครื่องมือคำนวณ</b><br><small>CBM, EOQ และอื่น ๆ</small></button><button class="card" data-act="go" data-v="lessons"><b>บทเรียน</b><br><small>6 บทภาษาไทย</small></button><button class="card" data-act="go" data-v="quiz"><b>แบบฝึกหัด</b><br><small>15 ข้อ พร้อมเฉลย</small></button><button class="card" data-act="go" data-v="game"><b>เกมจำลอง</b><br><small>วางแผนขนส่ง</small></button></div>';
+ h+='<h3>เครื่องมือที่ใช้บ่อย</h3><div class="chips">'+TOOLS.map(function(t,i){return '<button class="chip" data-act="gotool" data-i="'+i+'">'+t.name+'</button>'}).join('')+'</div>';
+ h+='<h3>บทเรียนแนะนำ</h3><button class="card" data-act="lopen" data-i="'+next+'"><b>บทที่ '+(next+1)+'</b> '+LESS[next].t+'</button>';
+ h+='<h3>ความคืบหน้า</h3><div class="card"><p>อ่านบทเรียนแล้ว '+n+' / '+LESS.length+' บท</p><div class="bar"><i style="width:'+(n/LESS.length*100)+'%"></i></div><p>คะแนนสูงสุดแบบทดสอบ: <b>'+fmt(S.best,0)+'%</b></p><p>ทำแบบทดสอบเสร็จ: <b>'+S.done+'</b> ครั้ง</p><p>คะแนนสะสมจากเกม: <b>'+fmt(S.game,0)+'</b></p><button class="btn sec" data-act="reset">ล้างความคืบหน้า</button></div>';
+ return h;
+}
+
+/* ---------- ตัวควบคุมหลัก ---------- */
+function render(){
+ document.querySelectorAll('nav button').forEach(function(b){b.classList.toggle('on',b.dataset.v===ui.view)});
+ var V={home:homeView,tools:toolView,lessons:lessonsView,quiz:quizView,game:gameView};
+ $('app').innerHTML=V[ui.view]();
+}
+function go(v){ui.view=v;render();window.scrollTo(0,0)}
+document.addEventListener('click',function(e){
+ var b=e.target.closest('[data-act]');if(!b)return;
+ var a=b.dataset.act,i=Number(b.dataset.i);
+ try{
+ switch(a){
+  case 'go':go(b.dataset.v);break;
+  case 'tool':ui.tool=i;render();break;
+  case 'gotool':ui.tool=i;go('tools');break;
+  case 'calc':doCalc();break;
+  case 'clear':doClear();break;
+  case 'lopen':ui.l=i;go('lessons');break;
+  case 'lback':ui.l=null;render();window.scrollTo(0,0);break;
+  case 'lread':var k=S.read.indexOf(ui.l);if(k>-1)S.read.splice(k,1);else S.read.push(ui.l);save();render();break;
+  case 'lquiz':startQuiz(i);break;
+  case 'qall':startQuiz(null);break;
+  case 'qch':startQuiz(i);break;
+  case 'qredo':startQuiz(ui.q.ch);break;
+  case 'qend':ui.q=null;render();break;
+  case 'sel':if(!ui.q.ans){ui.q.sel=i;render()}break;
+  case 'submit':qSubmit();break;
+  case 'next':qNext();break;
+  case 'gstart':gStart();break;
+  case 'gsel':if(!ui.g.done){ui.g.sel=i;render()}break;
+  case 'gconfirm':gConfirm();break;
+  case 'gend':ui.g=null;render();break;
+  case 'reset_old':if(confirm('ต้องการล้างความคืบหน้าทั้งหมดหรือไม่')){S={read:[],best:0,done:0,game:0};save();render()}break;
+ }
+ }catch(err){console.error(err)}
+});
+/* ================= Phase 1: Dashboard, Calculator, Dictionary, Workspace ================= */
+var KEYS=['read','best','done','game','fav','todo','notes','hist'];
+function arr(k){var v=store.get(k,[]);return Array.isArray(v)?v:[]}
+S.fav=arr('fav');S.todo=arr('todo');S.notes=arr('notes');S.hist=arr('hist');
+ui.d='';ui.df=false;ui.w=0;ui.cf=null;ui.ne=null;ui.last=null;
+function esc(s){return String(s).replace(/[&<>"']/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function iso(){return new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10)}
+function toast(m){var t=$('toast');if(!t){t=document.createElement('div');t.id='toast';t.className='toast';t.setAttribute('role','status');document.body.appendChild(t)}t.textContent=m;t.style.display='block';clearTimeout(toast.h);toast.h=setTimeout(function(){t.style.display='none'},2400)}
+function copyText(t){function fb(){var a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();var ok=false;try{ok=document.execCommand('copy')}catch(e){}document.body.removeChild(a);toast(ok?'คัดลอกแล้ว':'คัดลอกไม่ได้ กรุณาเลือกข้อความแล้วคัดลอกเอง')}
+ if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(function(){toast('คัดลอกแล้ว')},fb);else fb()}
+function ask(msg,fn){ui.cf={msg:msg,fn:fn};render()}
+function favLbl(k){return S.fav.indexOf(k)>-1?'★ บันทึกแล้ว':'☆ บันทึกเป็นรายการโปรด'}
+function toggleFav(k){var i=S.fav.indexOf(k);if(i>-1)S.fav.splice(i,1);else S.fav.push(k);save()}
+
+/* ---------- เครื่องมือคำนวณเพิ่มเติม ---------- */
+function tl(name,title,desc,formula,f,calc,ex,sel){return{name:name,title:title,desc:desc,formula:formula,f:f,calc:calc,ex:ex,sel:sel}}
+TOOLS[0].ex='กล่อง 100×50×40 cm จำนวน 10 ชิ้น → 0.2 CBM ต่อชิ้น รวม 2 CBM';
+TOOLS[1].ex='กล่อง 50×40×30 cm ตัวหาร 5,000 → 12 kg ต่อชิ้น';
+TOOLS[2].ex='ต้นทุนรวม 50,000 บาท จำนวน 2,000 หน่วย → 25 บาทต่อหน่วย';
+TOOLS[3].ex='D = 1,000 S = 100 H = 5 → EOQ = 200 หน่วย';
+var CF=[1/2.54,2.54,2.2046226218,1/2.2046226218,35.3146667,1/35.3146667,0.621371192,1.609344,0.264172052];
+TOOLS.push(
+tl('Air CW','Air Freight Chargeable Weight','หาน้ำหนักที่ใช้คิดค่าระวางอากาศ คือค่าที่มากกว่าระหว่างน้ำหนักจริงกับน้ำหนักตามปริมาตร','Chargeable = max(น้ำหนักจริงรวม, ยาว×กว้าง×สูง÷ตัวหาร×จำนวนชิ้น)',
+ [['l','ความยาวต่อชิ้น (cm)'],['w','ความกว้างต่อชิ้น (cm)'],['h','ความสูงต่อชิ้น (cm)'],['g','น้ำหนักจริงต่อชิ้น (kg)'],['n','จำนวนชิ้น','1']],
+ function(v){var vw=v.l*v.w*v.h/v.d*v.n,aw=v.g*v.n,c=Math.max(vw,aw);return{rows:[['น้ำหนักจริงรวม',fmt(aw)+' kg'],['น้ำหนักตามปริมาตรรวม',fmt(vw)+' kg'],['Chargeable Weight',fmt(c)+' kg ('+(vw>aw?'คิดตามปริมาตร':'คิดตามน้ำหนักจริง')+')']],
+  steps:['ปริมาตร: '+fmt(v.l)+'×'+fmt(v.w)+'×'+fmt(v.h)+'÷'+fmt(v.d)+'×'+fmt(v.n)+' = '+fmt(vw)+' kg','น้ำหนักจริง: '+fmt(v.g)+'×'+fmt(v.n)+' = '+fmt(aw)+' kg','เลือกค่าที่มากกว่า = '+fmt(c)+' kg'],note:'ตัวหาร (มักใช้ 6,000 สำหรับขนส่งทางอากาศ) และการปัดเศษ ขึ้นกับสายการบินและผู้ให้บริการ ควรตรวจกับใบเสนอราคาจริง'}},
+ 'กล่อง 60×50×40 cm หนัก 15 kg ตัวหาร 6,000 → ปริมาตร 20 kg มากกว่าน้ำหนักจริง จึงคิด 20 kg',['d','ตัวหาร (Divisor)',[6000,5000,4000]]),
+tl('Freight/เที่ยว','Freight Cost per Shipment','คำนวณค่าขนส่งต่อ shipment จากอัตราค่าระวาง ค่าธรรมเนียมคงที่ และ surcharge','ค่าขนส่งรวม = (อัตรา × ปริมาณ + ค่าคงที่) × (1 + surcharge%)',
+ [['r','อัตราค่าระวาง (บาทต่อหน่วยคิดค่าระวาง เช่น kg หรือ CBM)'],['q','ปริมาณที่ใช้คิดค่าระวาง (หน่วยตามอัตรา)'],['f','ค่าธรรมเนียมคงที่ (บาท)','0','z'],['s','Surcharge เช่น ค่าน้ำมัน (%)','0','z']],
+ function(v){var b=v.r*v.q,sub=b+v.f,sc=sub*v.s/100,t=sub+sc;return{rows:[['ค่าระวางพื้นฐาน',fmt(b,2)+' บาท'],['Surcharge',fmt(sc,2)+' บาท'],['ค่าขนส่งรวม',fmt(t,2)+' บาท'],['เฉลี่ยต่อหน่วยคิดค่าระวาง',fmt(t/v.q,2)+' บาท']],
+  steps:['ค่าระวาง = '+fmt(v.r,2)+' × '+fmt(v.q)+' = '+fmt(b,2),'รวมค่าคงที่ = '+fmt(sub,2),'บวก surcharge '+fmt(v.s)+'% = '+fmt(t,2)+' บาท'],note:'อัตราและ surcharge ขึ้นกับผู้ให้บริการและช่วงเวลา ให้กรอกตามใบเสนอราคาจริง'}},
+ 'อัตรา 45 บาทต่อ kg ปริมาณ 200 kg ค่าคงที่ 500 บาท surcharge 10% → 10,450 บาท'),
+tl('Landed Cost','Landed Cost Estimator','ประมาณต้นทุนสินค้านำเข้าถึงมือผู้ซื้อ (ใช้เพื่อการเรียนรู้)','Landed = สินค้า + ค่าขนส่ง + ประกัน + อากร + ค่าใช้จ่ายอื่น | อากร = (สินค้า+ขนส่ง+ประกัน) × อัตรา%',
+ [['g','มูลค่าสินค้า (บาท)'],['fr','ค่าขนส่งระหว่างประเทศ (บาท)'],['ins','ค่าประกันภัย (บาท)','0','z'],['d','อัตราอากร (%) กรอกตามที่ตรวจสอบจากแหล่งทางการ','0','z'],['o','ค่าใช้จ่ายอื่น เช่น พิธีการ ท่าเรือ (บาท)','0','z'],['q','จำนวนหน่วย','1']],
+ function(v){var cif=v.g+v.fr+v.ins,du=cif*v.d/100,t=cif+du+v.o;return{rows:[['มูลค่า CIF (สินค้า+ขนส่ง+ประกัน)',fmt(cif,2)+' บาท'],['อากร',fmt(du,2)+' บาท'],['Landed Cost รวม',fmt(t,2)+' บาท'],['ต่อหน่วย',fmt(t/v.q,2)+' บาท']],
+  steps:['CIF = '+fmt(cif,2),'อากร = '+fmt(cif,2)+' × '+fmt(v.d)+'% = '+fmt(du,2),'รวมค่าใช้จ่ายอื่น = '+fmt(t,2)+' บาท'],note:'แอปไม่มีอัตราอากรให้ ต้องกรอกเองจากแหล่งทางการ (เช่น กรมศุลกากร) ตัวอย่างนี้ใช้ฐาน CIF และไม่รวม VAT ภาษีอื่น และค่าใช้จ่ายที่ต่างกันตามสินค้า'}},
+ 'สินค้า 100,000 ขนส่ง 8,000 ประกัน 500 อากร 5% อื่น ๆ 2,000 จำนวน 100 หน่วย → 115,925 บาท หรือ 1,159.25 บาทต่อหน่วย'),
+tl('Safety Stock','Safety Stock Calculator','คำนวณสต็อกสำรองเมื่อความต้องการผันผวน','Safety Stock = Z × σ(ความต้องการต่อวัน) × √Lead Time',
+ [['z','Z ของระดับการให้บริการ (1.65 ≈ 95%)','1.65'],['sd','ส่วนเบี่ยงเบนมาตรฐานของความต้องการต่อวัน (หน่วย)'],['lt','Lead Time (วัน)']],
+ function(v){var s=v.z*v.sd*Math.sqrt(v.lt);return{rows:[['Safety Stock',fmt(s,2)+' หน่วย']],steps:['√'+fmt(v.lt)+' = '+fmt(Math.sqrt(v.lt),4),fmt(v.z)+' × '+fmt(v.sd)+' × '+fmt(Math.sqrt(v.lt),4)+' = '+fmt(s,2)],note:'สมมติว่าความต้องการแจกแจงปกติ ไม่สัมพันธ์กันรายวัน และ Lead Time คงที่ ค่า Z โดยประมาณ: 1.28 ≈ 90%, 1.65 ≈ 95%, 2.33 ≈ 99%'}},
+ 'Z = 1.65 σ = 4 หน่วยต่อวัน Lead Time 9 วัน → 19.8 หน่วย'),
+tl('ROP','Reorder Point Calculator','หาจุดที่ควรสั่งซื้อใหม่','ROP = ความต้องการเฉลี่ยต่อวัน × Lead Time + Safety Stock',
+ [['d','ความต้องการเฉลี่ยต่อวัน (หน่วย)'],['lt','Lead Time (วัน)'],['ss','Safety Stock (หน่วย)','0','z']],
+ function(v){var r=v.d*v.lt+v.ss;return{rows:[['Reorder Point',fmt(r,2)+' หน่วย']],steps:[fmt(v.d)+' × '+fmt(v.lt)+' = '+fmt(v.d*v.lt),'+ Safety Stock '+fmt(v.ss)+' = '+fmt(r,2)],note:'เมื่อสต็อกคงเหลือลดถึงค่านี้ให้สั่งซื้อ โดยสมมติว่าความต้องการและ Lead Time ค่อนข้างคงที่'}},
+ 'ใช้ 20 หน่วยต่อวัน Lead Time 5 วัน Safety Stock 30 → ROP = 130 หน่วย'),
+tl('Turnover','Inventory Turnover','วัดว่าสินค้าคงคลังหมุนเวียนกี่รอบต่อปี','Turnover = ต้นทุนขายต่อปี ÷ มูลค่าสินค้าคงคลังเฉลี่ย',
+ [['c','ต้นทุนขายต่อปี (บาท)'],['i','มูลค่าสินค้าคงคลังเฉลี่ย (บาท)']],
+ function(v){var t=v.c/v.i;return{rows:[['อัตราหมุนเวียน',fmt(t,2)+' ครั้งต่อปี'],['ระยะเวลาเก็บเฉลี่ย',fmt(365/t,1)+' วัน']],steps:[fmt(v.c,2)+' ÷ '+fmt(v.i,2)+' = '+fmt(t,2),'365 ÷ '+fmt(t,2)+' = '+fmt(365/t,1)+' วัน'],note:'ค่าที่เหมาะสมต่างกันตามประเภทสินค้าและอุตสาหกรรม ควรเทียบกับค่าอ้างอิงของอุตสาหกรรมนั้น'}},
+ 'ต้นทุนขาย 1,200,000 สต็อกเฉลี่ย 200,000 → 6 ครั้งต่อปี (ประมาณ 60.8 วัน)'),
+tl('Days Inv.','Days of Inventory','จำนวนวันที่สินค้าคงคลังเพียงพอ (Days of Inventory on Hand)','DOH = (สินค้าคงคลังเฉลี่ย ÷ ต้นทุนขายต่อปี) × 365',
+ [['i','มูลค่าสินค้าคงคลังเฉลี่ย (บาท)'],['c','ต้นทุนขายต่อปี (บาท)']],
+ function(v){var d=v.i/v.c*365;return{rows:[['Days of Inventory',fmt(d,1)+' วัน']],steps:[fmt(v.i,2)+' ÷ '+fmt(v.c,2)+' × 365 = '+fmt(d,1)],note:'ใช้ 365 วันต่อปี หากบริษัทนับวันทำการ ให้ปรับตัวเลขเอง'}},
+ 'สต็อก 200,000 ต้นทุนขาย 1,200,000 → 60.8 วัน'),
+tl('Warehouse','Warehouse Capacity Calculator','ประมาณจำนวนตำแหน่งวางพาเลทในคลัง','ตำแหน่งต่อชั้น = ⌊(พื้นที่ × % ใช้งานได้) ÷ พื้นที่ต่อตำแหน่ง⌋ | รวม = ตำแหน่งต่อชั้น × จำนวนชั้น',
+ [['a','พื้นที่คลังรวม (m²)'],['u','สัดส่วนพื้นที่เก็บใช้งานได้ (%)','70'],['p','พื้นที่ต่อหนึ่งตำแหน่งพาเลท (m²)'],['lv','จำนวนชั้นวาง','1']],
+ function(v){if(v.u>100)return{err:'สัดส่วนพื้นที่ต้องไม่เกิน 100%'};var us=v.a*v.u/100,pl=Math.floor(us/v.p),t=pl*Math.floor(v.lv);return{rows:[['พื้นที่เก็บใช้งานได้',fmt(us,2)+' m²'],['ตำแหน่งต่อชั้น',fmt(pl,0)],['ความจุรวม',fmt(t,0)+' ตำแหน่งพาเลท']],steps:[fmt(v.a)+' × '+fmt(v.u)+'% = '+fmt(us,2)+' m²','÷ '+fmt(v.p)+' แล้วปัดลง = '+fmt(pl,0),'× '+fmt(Math.floor(v.lv))+' ชั้น = '+fmt(t,0)],note:'ค่า % ใช้งานได้ต้องหักทางเดิน พื้นที่รับ-จ่าย และโซนสำนักงานตามผังจริง นี่เป็นค่าประมาณเบื้องต้น'}},
+ 'พื้นที่ 1,000 m² ใช้งานได้ 70% ตำแหน่งละ 1.5 m² 4 ชั้น → 466 ตำแหน่งต่อชั้น รวม 1,864'),
+tl('Pallet','Pallet Loading Calculator','คำนวณจำนวนกล่องต่อพาเลทแบบวางเรียงตรง (เลือกทิศที่วางได้มากกว่า)','กล่องต่อชั้น = ⌊PL÷BL⌋×⌊PW÷BW⌋ | ชั้น = ⌊ความสูงที่วางได้÷BH⌋',
+ [['pl','ความยาวพาเลท (cm)'],['pw','ความกว้างพาเลท (cm)'],['bl','ความยาวกล่อง (cm)'],['bw','ความกว้างกล่อง (cm)'],['bh','ความสูงกล่อง (cm)'],['mh','ความสูงรวมสูงสุดที่วางได้ (cm)'],['q','จำนวนกล่องทั้งหมด']],
+ function(v){var a=Math.floor(v.pl/v.bl)*Math.floor(v.pw/v.bw),b=Math.floor(v.pl/v.bw)*Math.floor(v.pw/v.bl),pe=Math.max(a,b),ly=Math.floor(v.mh/v.bh);if(!pe||!ly)return{err:'กล่องใหญ่เกินพาเลทหรือเกินความสูงที่วางได้'};var per=pe*ly;return{rows:[['กล่องต่อชั้น',fmt(pe,0)],['จำนวนชั้น',fmt(ly,0)],['กล่องต่อพาเลท',fmt(per,0)],['พาเลทที่ต้องใช้',fmt(Math.ceil(v.q/per),0)+' พาเลท']],steps:['ทิศที่ 1 ได้ '+a+' ทิศที่ 2 ได้ '+b+' เลือก '+pe,'ชั้น = ⌊'+fmt(v.mh)+'÷'+fmt(v.bh)+'⌋ = '+ly,'พาเลท = ⌈'+fmt(v.q)+'÷'+per+'⌉ = '+Math.ceil(v.q/per)],note:'คิดแบบวางเรียงเป็นตารางเท่านั้น ยังไม่รวมน้ำหนักสูงสุดของพาเลทหรือรูปแบบวางสลับ ซึ่งอาจวางได้มากกว่า'}},
+ 'พาเลท 120×100 กล่อง 40×30×25 สูงรวมไม่เกิน 150 cm จำนวน 1,000 กล่อง → 54 กล่องต่อพาเลท ใช้ 19 พาเลท'),
+tl('Truck Util.','Truck Utilization Calculator','ดูว่ารถบรรทุกเต็มพิกัดน้ำหนักหรือปริมาตรแค่ไหน','Utilization (%) = ปริมาณที่บรรทุก ÷ ความจุสูงสุด × 100',
+ [['lw','น้ำหนักบรรทุกจริง (kg)'],['cw','น้ำหนักบรรทุกสูงสุด (kg)'],['lv','ปริมาตรสินค้า (CBM)'],['cv','ปริมาตรบรรทุกสูงสุด (CBM)']],
+ function(v){var w=v.lw/v.cw*100,c=v.lv/v.cv*100;return{rows:[['การใช้น้ำหนัก',fmt(w,1)+'%'],['การใช้ปริมาตร',fmt(c,1)+'%'],['ตัวจำกัดหลัก',w>=c?'น้ำหนัก':'ปริมาตร']],steps:[fmt(v.lw)+' ÷ '+fmt(v.cw)+' × 100 = '+fmt(w,1)+'%',fmt(v.lv)+' ÷ '+fmt(v.cv)+' × 100 = '+fmt(c,1)+'%'],note:(w>100||c>100?'เกิน 100% หมายถึงบรรทุกเกินพิกัด ต้องแบ่งเที่ยวหรือใช้รถใหญ่ขึ้น ':'')+'ค่าที่สูงกว่าคือข้อจำกัดที่ทำให้บรรทุกเพิ่มไม่ได้'}},
+ 'บรรทุก 8,000 จาก 10,000 kg และ 30 จาก 40 CBM → น้ำหนัก 80% ปริมาตร 75%'),
+tl('Fuel','Fuel Cost Calculator','ประมาณค่าน้ำมันของการขนส่ง','ค่าน้ำมัน = (ระยะทาง × จำนวนเที่ยว ÷ อัตราสิ้นเปลือง) × ราคาน้ำมันต่อลิตร',
+ [['km','ระยะทางต่อเที่ยว (km)'],['e','อัตราสิ้นเปลือง (km ต่อลิตร)'],['p','ราคาน้ำมัน (บาทต่อลิตร)'],['t','จำนวนเที่ยว','1']],
+ function(v){var L=v.km*v.t/v.e,c=L*v.p;return{rows:[['น้ำมันที่ใช้',fmt(L,2)+' ลิตร'],['ค่าน้ำมันรวม',fmt(c,2)+' บาท'],['ต่อ km',fmt(c/(v.km*v.t),2)+' บาท']],steps:[fmt(v.km)+' × '+fmt(v.t)+' ÷ '+fmt(v.e)+' = '+fmt(L,2)+' ลิตร','× '+fmt(v.p,2)+' = '+fmt(c,2)+' บาท'],note:'อัตราสิ้นเปลืองจริงแปรผันตามน้ำหนักบรรทุก เส้นทาง และสภาพรถ ราคาน้ำมันให้กรอกราคาล่าสุดเอง'}},
+ '400 km รถวิ่ง 8 km ต่อลิตร น้ำมัน 35 บาท 1 เที่ยว → 50 ลิตร 1,750 บาท'),
+tl('Converter','Unit Converter','แปลงหน่วยที่ใช้บ่อยในงานโลจิสติกส์','ค่าใหม่ = ค่าเดิม × ตัวคูณของหน่วย',
+ [['x','ค่าที่ต้องการแปลง']],
+ function(v){var lb=['cm → inch','inch → cm','kg → lb','lb → kg','m³ → ft³','ft³ → m³','km → mile','mile → km','liter → US gallon'][v.c],u=lb.split(' → ')[1],r=v.x*CF[v.c];return{rows:[[lb,fmt(r,4)+' '+u]],steps:[fmt(v.x)+' × '+fmt(CF[v.c],6)+' = '+fmt(r,4)+' '+u],note:'ตัวคูณเป็นค่ามาตรฐานโดยประมาณ ปัดทศนิยมตามความละเอียดที่ต้องการ'}},
+ '10 kg → 22.0462 lb',['c','ประเภทการแปลง',[[0,'cm → inch'],[1,'inch → cm'],[2,'kg → lb'],[3,'lb → kg'],[4,'m³ → ft³'],[5,'ft³ → m³'],[6,'km → mile'],[7,'mile → km'],[8,'liter → US gallon']]])
+);
+
+function toolView(){
+ var t=TOOLS[ui.tool],k='t:'+t.name;
+ var h='<h2>เครื่องมือคำนวณ</h2><div class="chips">'+TOOLS.map(function(x,i){return '<button class="chip'+(i===ui.tool?' on':'')+'" data-act="tool" data-i="'+i+'">'+x.name+'</button>'}).join('')+'</div>';
+ h+='<div class="card"><h3 style="margin-top:0">'+t.title+'</h3><p>'+t.desc+'</p><p class="formula">'+t.formula+'</p>'+(t.ex?'<p><b>ตัวอย่าง:</b> '+t.ex+'</p>':'');
+ t.f.forEach(function(f){h+='<label for="f_'+f[0]+'">'+f[1]+'</label><input id="f_'+f[0]+'" type="text" inputmode="decimal" autocomplete="off" value="'+(f[2]||'')+'">'});
+ if(t.sel)h+='<label for="f_'+t.sel[0]+'">'+t.sel[1]+'</label><select id="f_'+t.sel[0]+'">'+t.sel[2].map(function(o){var a=Array.isArray(o);return '<option value="'+(a?o[0]:o)+'">'+(a?o[1]:fmt(o))+'</option>'}).join('')+'</select>';
+ return h+'<div><button class="btn" data-act="calc">คำนวณ / คำนวณใหม่</button><button class="btn sec" data-act="clear">ล้างค่า</button><button class="btn sec" data-act="fav" data-k="'+esc(k)+'">'+favLbl(k)+'</button></div><div id="out" aria-live="polite"></div></div>';
+}
+function doCalc(){
+ var t=TOOLS[ui.tool],v={},bad=[],o=$('out');
+ t.f.forEach(function(f){var n=num($('f_'+f[0]).value),z=f[3]==='z';if(!isFinite(n)||n>1e12||(z?n<0:n<=0))bad.push(f[1]);v[f[0]]=n});
+ if(t.sel)v[t.sel[0]]=Number($('f_'+t.sel[0]).value);
+ if(bad.length){o.innerHTML='<div class="res err"><b>ข้อมูลไม่ถูกต้อง</b><br>กรอกเป็นตัวเลข ห้ามติดลบ และช่องหลักต้องมากกว่า 0 ในช่อง: '+bad.join(' | ')+'</div>';return}
+ var r;try{r=t.calc(v)}catch(e){o.innerHTML='<div class="res err">คำนวณไม่สำเร็จ กรุณาตรวจสอบตัวเลข</div>';return}
+ if(r.err){o.innerHTML='<div class="res err">'+r.err+'</div>';return}
+ ui.last={t:t.title,s:t.title+'\n'+r.rows.map(function(x){return x[0]+': '+x[1]}).join('\n')};
+ o.innerHTML='<div class="res">'+r.rows.map(function(x){return '<div>'+x[0]+'</div><div class="big">'+x[1]+'</div>'}).join('')+'<h3>วิธีคำนวณ</h3><ul>'+r.steps.map(function(s){return '<li>'+s+'</li>'}).join('')+'</ul></div><div class="note w">'+r.note+'</div><button class="btn sec" data-act="tcopy">คัดลอกผลลัพธ์</button><button class="btn sec" data-act="tsave">บันทึกผลลงประวัติ</button>';
+}
+
+/* ---------- พจนานุกรม ---------- */
+var DICT=[
+['CBM','ลูกบาศก์เมตร','หน่วยปริมาตรสินค้า ใช้คิดค่าระวางและวางแผนบรรทุก','The shipment is 12 CBM.'],
+['Lead Time','ระยะเวลานำ','เวลาตั้งแต่สั่งซื้อจนได้รับสินค้า','Our supplier lead time is 14 days.'],
+['EOQ','ปริมาณสั่งซื้อที่ประหยัด','Economic Order Quantity ปริมาณสั่งที่ทำให้ต้นทุนสั่งซื้อและเก็บรักษารวมต่ำสุดตามแบบจำลอง','We order in EOQ batches.'],
+['Safety Stock','สต็อกสำรอง','สินค้าสำรองรับความไม่แน่นอนของความต้องการหรือเวลาส่ง','Safety stock prevents stockouts.'],
+['Reorder Point','จุดสั่งซื้อใหม่','ระดับสต็อกที่ควรเริ่มสั่งซื้อ','Place an order at the reorder point.'],
+['SKU','รหัสสินค้า','Stock Keeping Unit รหัสแยกแต่ละรายการสินค้าเพื่อติดตามสต็อก','Each size has its own SKU.'],
+['WMS','ระบบบริหารคลังสินค้า','Warehouse Management System ซอฟต์แวร์ควบคุมงานและสต็อกในคลัง','The WMS directs picking.'],
+['TMS','ระบบบริหารการขนส่ง','Transportation Management System ช่วยวางแผนเที่ยวรถและติดตามการส่ง','We plan routes in the TMS.'],
+['FIFO','เข้าก่อนออกก่อน','First In First Out ใช้หรือส่งสินค้าล็อตที่รับเข้าก่อน','Use FIFO for packaged goods.'],
+['FEFO','หมดอายุก่อนออกก่อน','First Expired First Out เหมาะกับสินค้ามีวันหมดอายุ','Dairy is picked by FEFO.'],
+['Bill of Lading','ใบตราส่งสินค้า','เอกสารจากผู้ขนส่ง (B/L) เป็นหลักฐานรับสินค้าและสัญญาขนส่ง','The carrier issued the B/L.'],
+['Air Waybill','ใบตราส่งสินค้าทางอากาศ','เอกสารขนส่งทางอากาศ (AWB) ไม่ใช่เอกสารแสดงกรรมสิทธิ์สินค้า','The AWB number is on the label.'],
+['Incoterms','เงื่อนไขการส่งมอบ','กฎของ ICC กำหนดหน้าที่ ค่าใช้จ่าย และความเสี่ยงระหว่างผู้ซื้อผู้ขาย','Please confirm the Incoterms.'],
+['FCL','เหมาตู้','Full Container Load สินค้าของผู้ส่งรายเดียวเต็มตู้','We ship FCL to Hamburg.'],
+['LCL','ตู้รวม','Less than Container Load สินค้าหลายรายแชร์ตู้เดียวกัน','Small orders go LCL.'],
+['TEU','หน่วยตู้ 20 ฟุต','Twenty-foot Equivalent Unit หน่วยนับปริมาณตู้คอนเทนเนอร์','The vessel carries 8,000 TEU.'],
+['Freight Forwarder','ตัวแทนจัดการขนส่ง','ตัวกลางจัดการขนส่งระหว่างประเทศ เช่น จองระวางและเอกสาร','Our forwarder booked the space.'],
+['Customs Broker','ตัวแทนออกของ','ผู้ทำพิธีการศุลกากรแทนผู้นำเข้าหรือส่งออก','The broker cleared the cargo.'],
+['Landed Cost','ต้นทุนสินค้าถึงปลายทาง','ต้นทุนรวมของสินค้านำเข้า ตั้งแต่ราคาสินค้าจนถึงมือผู้ซื้อ','Include duty in the landed cost.'],
+['OTIF','ส่งตรงเวลาและครบ','On-Time In-Full สัดส่วนออเดอร์ที่ส่งตรงเวลาและครบถ้วน','Our OTIF is 95 percent.'],
+['Cross-docking','การถ่ายสินค้าข้ามท่า','ย้ายสินค้าจากรถขาเข้าไปรถขาออกโดยแทบไม่เก็บในคลัง','Cross-docking cuts storage time.'],
+['Bullwhip Effect','ปรากฏการณ์แส้ม้า','ความผันผวนของคำสั่งซื้อขยายขึ้นเมื่อย้อนไปทางต้นน้ำ','Poor forecasts cause a bullwhip effect.'],
+['Backorder','ยอดค้างส่ง','ออเดอร์ที่ยังส่งไม่ได้เพราะขาดสต็อก จะส่งภายหลัง','Item is on backorder.'],
+['3PL','ผู้ให้บริการโลจิสติกส์ภายนอก','Third-Party Logistics ว่าจ้างบริษัทภายนอกดูแลขนส่งหรือคลัง','We outsource to a 3PL.']
+];
+function dlist(){var q=ui.d.trim().toLowerCase(),L=DICT.filter(function(d){return (!ui.df||S.fav.indexOf('d:'+d[0])>-1)&&(!q||(d[0]+' '+d[1]+' '+d[2]).toLowerCase().indexOf(q)>-1)});
+ if(!L.length)return '<div class="card"><p>ไม่พบคำศัพท์ ลองค้นหาด้วยคำอื่น หรือปิดตัวกรองรายการที่บันทึกไว้</p></div>';
+ return L.map(function(d){var k='d:'+d[0];return '<div class="card"><b>'+esc(d[0])+'</b> — '+esc(d[1])+'<p>'+esc(d[2])+'</p><p><i>'+esc(d[3])+'</i></p><button class="btn sec" data-act="fav" data-k="'+esc(k)+'">'+favLbl(k)+'</button></div>'}).join('')}
+function dictView(){return '<h2>พจนานุกรมโลจิสติกส์</h2><div class="card"><label for="dq" style="margin-top:0">ค้นหาคำศัพท์ (อังกฤษหรือไทย)</label><input id="dq" type="search" value="'+esc(ui.d)+'" autocomplete="off"><button class="btn'+(ui.df?'':' sec')+'" data-act="dfo">เฉพาะที่บันทึกไว้</button></div><div id="dlist">'+dlist()+'</div>'}
+
+/* ---------- ค้นหาทั้งแอป + หน้าแรก ---------- */
+function srch(q){q=q.trim().toLowerCase();if(!q)return '';var r=[];
+ TOOLS.forEach(function(t,i){if((t.title+t.desc+t.name).toLowerCase().indexOf(q)>-1)r.push('<button class="chip" data-act="gotool" data-i="'+i+'">เครื่องมือ: '+t.name+'</button>')});
+ DICT.forEach(function(d){if((d[0]+d[1]+d[2]).toLowerCase().indexOf(q)>-1)r.push('<button class="chip" data-act="dgo" data-k="'+esc(d[0])+'">ศัพท์: '+esc(d[0])+'</button>')});
+ LESS.forEach(function(l,i){if(l.t.toLowerCase().indexOf(q)>-1)r.push('<button class="chip" data-act="lopen" data-i="'+i+'">บทเรียน: บทที่ '+(i+1)+'</button>')});
+ return r.length?'<div class="chips" style="flex-wrap:wrap">'+r.slice(0,10).join('')+'</div>':'<p>ไม่พบผลลัพธ์ ลองคำอื่น เช่น CBM, EOQ, Lead Time</p>'}
+function dleft(x){if(!/^\d{4}-\d\d-\d\d$/.test(String(x.d)))return null;return Math.round((new Date(x.d+'T00:00:00')-new Date(iso()+'T00:00:00'))/864e5)}
+function dateLabel(x){var n=dleft(x);if(n===null)return 'ไม่ระบุวันที่';var s=new Date(x.d+'T00:00:00').toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});if(x.done)return s;return s+' | '+(n<0?'<span class="late">เลยกำหนด '+(-n)+' วัน</span>':n===0?'<b>วันนี้</b>':'อีก '+n+' วัน')}
+function homeView(){var h=homeView0(),td=S.todo.filter(function(x){return !x.done&&dleft(x)!==null}).sort(function(a,b){return a.d<b.d?-1:1}).slice(0,3);
+ var ex='<div class="card"><label for="gs" style="margin-top:0">ค้นหาในแอป</label><input id="gs" type="search" placeholder="เช่น CBM, EOQ, Lead Time" autocomplete="off"><div id="sres"></div></div>'
+ +'<div class="grid"><button class="card" data-act="go" data-v="dict"><b>พจนานุกรม</b><br><small>ศัพท์ อังกฤษ-ไทย</small></button><button class="card" data-act="go" data-v="work"><b>พื้นที่ของฉัน</b><br><small>งาน โน้ต สำรองข้อมูล</small></button></div>'
+ +'<div class="card"><h3 style="margin-top:0">งานและกำหนดส่งที่ใกล้ถึง</h3>'+(td.length?td.map(function(x){return '<p><b>'+esc(x.t)+'</b> ('+esc(x.ty)+')<br>'+dateLabel(x)+'</p>'}).join(''):'<p>ยังไม่มีงานที่ระบุวันกำหนด</p><button class="btn sec" data-act="go" data-v="work">เพิ่มงานหรือวันสอบ</button>')+'</div>';
+ return h.replace('<div class="grid">',ex+'<div class="grid">')}
+function moreView(){return '<h2>เพิ่มเติม</h2><button class="card" data-act="go" data-v="lessons"><b>บทเรียน</b><br><small>6 บท ภาษาไทย</small></button><button class="card" data-act="go" data-v="quiz"><b>แบบทดสอบ</b><br><small>15 ข้อ พร้อมเฉลย</small></button><button class="card" data-act="go" data-v="game"><b>เกมจำลองการขนส่ง</b><br><small>4 สถานการณ์</small></button><div class="card"><h3 style="margin-top:0">กำลังจะมา</h3><ul><li>Phase 2: Warehouse (ABC Analysis), Transportation (Container Loading, Distance), Supply Chain</li><li>Phase 3: Import/Export และ Project Toolkit</li><li>Phase 4: Study Center ขยาย และคลังข้อสอบ 50 ข้อ</li><li>Phase 5: Simulation Lab, Internship</li><li>Phase 6: QA และ Accessibility</li></ul></div>'}
+
+/* ---------- พื้นที่ของฉัน ---------- */
+function wTodo(){
+ var h='<div class="card"><h3 style="margin-top:0">เพิ่มงาน วันสอบ หรือกำหนดส่ง</h3><label for="tt">ชื่อรายการ</label><input id="tt" type="text" maxlength="100"><label for="td">วันที่กำหนด (ไม่บังคับ)</label><input id="td" type="date"><label for="ty">ประเภท</label><select id="ty"><option>งาน</option><option>สอบ</option><option>ส่งงาน</option><option>อื่น ๆ</option></select><button class="btn" data-act="tadd">เพิ่มรายการ</button></div>';
+ var L=S.todo.slice().sort(function(a,b){if(!!a.done!==!!b.done)return a.done?1:-1;return (a.d||'9')<(b.d||'9')?-1:1});
+ if(!L.length)return h+'<div class="card"><p>ยังไม่มีรายการ เพิ่มวันสอบหรือกำหนดส่งงานด้านบนได้เลย</p></div>';
+ return h+L.map(function(x){return '<div class="card"><p'+(x.done?' style="text-decoration:line-through;opacity:.6"':'')+'><b>'+esc(x.t)+'</b> ('+esc(x.ty)+')</p><p>'+dateLabel(x)+'</p><button class="btn ok" data-act="ttog" data-k="'+esc(x.id)+'">'+(x.done?'ยกเลิกเสร็จ':'ทำเสร็จแล้ว')+'</button><button class="btn sec" data-act="tdel" data-k="'+esc(x.id)+'">ลบ</button></div>'}).join('')}
+function wNotes(){var e=ui.ne?S.notes.filter(function(n){return n.id===ui.ne})[0]:null;
+ var h='<div class="card"><h3 style="margin-top:0">'+(e?'แก้ไขโน้ต':'โน้ตใหม่')+'</h3><label for="nt">หัวข้อ</label><input id="nt" type="text" maxlength="100" value="'+(e?esc(e.t):'')+'"><label for="nb">เนื้อหา</label><textarea id="nb" rows="5">'+(e?esc(e.b):'')+'</textarea><button class="btn" data-act="nsave">บันทึกโน้ต</button>'+(e?'<button class="btn sec" data-act="ncancel">ยกเลิก</button>':'')+'</div>';
+ if(!S.notes.length)return h+'<div class="card"><p>ยังไม่มีโน้ต</p></div>';
+ return h+S.notes.map(function(n){return '<div class="card"><b>'+esc(n.t)+'</b><p style="white-space:pre-wrap">'+esc(n.b)+'</p><button class="btn sec" data-act="nedit" data-k="'+esc(n.id)+'">แก้ไข</button><button class="btn sec" data-act="ndel" data-k="'+esc(n.id)+'">ลบ</button></div>'}).join('')}
+function wFav(){if(!S.fav.length)return '<div class="card"><p>ยังไม่มีรายการโปรด กดปุ่มบันทึกในหน้าเครื่องมือหรือพจนานุกรมได้เลย</p></div>';
+ return S.fav.map(function(k){var s=String(k),n=s.slice(2),lb=s.charAt(0)==='d'?'ศัพท์':'เครื่องมือ';return '<div class="card"><b>'+lb+': '+esc(n)+'</b><br><button class="btn" data-act="fopen" data-k="'+esc(s)+'">เปิด</button><button class="btn sec" data-act="fav" data-k="'+esc(s)+'">เอาออก</button></div>'}).join('')}
+function wHist(){if(!S.hist.length)return '<div class="card"><p>ยังไม่มีประวัติ กด บันทึกผลลงประวัติ หลังคำนวณในหน้าเครื่องมือ</p></div>';
+ return '<button class="btn warn" data-act="hclear">ล้างประวัติทั้งหมด</button>'+S.hist.map(function(x){return '<div class="card"><b>'+esc(x.t)+'</b> <small>'+esc(x.d)+'</small><p style="white-space:pre-wrap">'+esc(x.s)+'</p><button class="btn sec" data-act="hcopy" data-k="'+esc(x.id)+'">คัดลอก</button><button class="btn sec" data-act="hdel" data-k="'+esc(x.id)+'">ลบ</button></div>'}).join('')}
+function backup(){var d={};KEYS.forEach(function(k){d[k]=S[k]});return{app:'LogiPocket',v:1,saved:new Date().toISOString(),data:d}}
+function wBack(){return '<div class="note w"><b>ข้อจำกัด:</b> ข้อมูลทั้งหมดอยู่ในเบราว์เซอร์ของเครื่องนี้เท่านั้น ไม่ซิงก์ข้ามอุปกรณ์ และอาจหายเมื่อล้างข้อมูลเบราว์เซอร์ ควรสำรองข้อมูลเป็นระยะ</div><div class="card"><h3 style="margin-top:0">สำรองข้อมูล</h3><textarea id="bk" rows="5" readonly>'+esc(JSON.stringify(backup()))+'</textarea><button class="btn" data-act="bcopy">คัดลอกข้อมูลสำรอง</button><button class="btn sec" data-act="bdl">ดาวน์โหลดไฟล์ .json</button></div><div class="card"><h3 style="margin-top:0">กู้คืนข้อมูล</h3><label for="impf">เลือกไฟล์สำรอง</label><input id="impf" type="file" accept=".json,application/json"><label for="imp">หรือวางข้อมูล JSON ที่นี่</label><textarea id="imp" rows="4"></textarea><button class="btn warn" data-act="bimp">กู้คืนข้อมูล</button></div>'}
+function workView(){var tabs=['งานและปฏิทิน','โน้ต','รายการโปรด','ประวัติคำนวณ','สำรองข้อมูล'];
+ return '<h2>พื้นที่ของฉัน</h2><div class="chips">'+tabs.map(function(x,i){return '<button class="chip'+(i===ui.w?' on':'')+'" data-act="wtab" data-i="'+i+'">'+x+'</button>'}).join('')+'</div>'+[wTodo,wNotes,wFav,wHist,wBack][ui.w]()}
+function restore(){var raw=$('imp').value.trim();if(!raw){toast('วางข้อมูล JSON หรือเลือกไฟล์ก่อน');return}
+ var o;try{o=JSON.parse(raw)}catch(e){toast('อ่านเป็น JSON ไม่ได้ ข้อมูลอาจไม่ครบ');return}
+ if(!o||o.app!=='LogiPocket'||!o.data||typeof o.data!=='object'){toast('ไม่ใช่ไฟล์สำรองของ LogiPocket');return}
+ var d=o.data,ok=true;['read','fav','todo','notes','hist'].forEach(function(k){if(!Array.isArray(d[k]))ok=false});['best','done','game'].forEach(function(k){if(typeof d[k]!=='number'||!isFinite(d[k]))ok=false});
+ if(!ok){toast('โครงสร้างข้อมูลไม่ครบ');return}
+ ask('การกู้คืนจะแทนที่ข้อมูลปัจจุบันทั้งหมดในเครื่องนี้ ต้องการดำเนินการหรือไม่',function(){KEYS.forEach(function(k){S[k]=d[k]});save();toast('กู้คืนข้อมูลแล้ว')})}
+
+/* ---------- render และตัวควบคุมใหม่ ---------- */
+function render(){
+ var grp={lessons:1,quiz:1,game:1};
+ document.querySelectorAll('nav button').forEach(function(b){b.classList.toggle('on',b.dataset.v===(grp[ui.view]?'more':ui.view))});
+ var V={home:homeView,tools:toolView,lessons:lessonsView,quiz:quizView,game:gameView,dict:dictView,work:workView,more:moreView};
+ var h=V[ui.view]();
+ if(ui.cf)h+='<div class="ov" role="alertdialog"><div class="card"><p>'+esc(ui.cf.msg)+'</p><button class="btn warn" data-act="cfy">ยืนยัน</button><button class="btn sec" data-act="cfn">ยกเลิก</button></div></div>';
+ $('app').innerHTML=h;
+}
+function byId(L,id){for(var i=0;i<L.length;i++)if(L[i].id===id)return i;return -1}
+document.addEventListener('click',function(e){
+ var b=e.target.closest('[data-act]');if(!b)return;var a=b.dataset.act,k=b.dataset.k,i;
+ try{switch(a){
+  case 'cfy':var f=ui.cf.fn;ui.cf=null;f();render();break;
+  case 'cfn':ui.cf=null;render();break;
+  case 'reset':ask('ต้องการล้างความคืบหน้าการเรียนทั้งหมดหรือไม่ (โน้ตและงานจะไม่ถูกลบ)',function(){S.read=[];S.best=0;S.done=0;S.game=0;save()});break;
+  case 'tsave':if(ui.last){S.hist.unshift({id:uid(),t:ui.last.t,d:new Date().toLocaleString('th-TH'),s:ui.last.s});S.hist=S.hist.slice(0,50);save();toast('บันทึกผลแล้ว')}break;
+  case 'tcopy':if(ui.last)copyText(ui.last.s);break;
+  case 'fav':toggleFav(k);if(ui.view==='dict')$('dlist').innerHTML=dlist();else if(ui.view==='tools')b.textContent=favLbl(k);else render();break;
+  case 'dfo':ui.df=!ui.df;render();break;
+  case 'dgo':ui.d=k;ui.df=false;go('dict');break;
+  case 'fopen':if(k.charAt(0)==='d'){ui.d=k.slice(2);ui.df=false;go('dict')}else{for(i=0;i<TOOLS.length;i++)if('t:'+TOOLS[i].name===k)ui.tool=i;go('tools')}break;
+  case 'wtab':ui.w=Number(b.dataset.i);render();break;
+  case 'tadd':var tt=$('tt').value.trim();if(!tt){toast('กรุณากรอกชื่อรายการ');break}S.todo.push({id:uid(),t:tt,d:$('td').value,ty:$('ty').value,done:false});save();render();break;
+  case 'ttog':i=byId(S.todo,k);if(i>-1){S.todo[i].done=!S.todo[i].done;save();render()}break;
+  case 'tdel':ask('ลบรายการนี้หรือไม่',function(){S.todo=S.todo.filter(function(x){return x.id!==k});save()});break;
+  case 'nsave':var nt=$('nt').value.trim(),nb=$('nb').value;if(!nt&&!nb.trim()){toast('กรุณากรอกหัวข้อหรือเนื้อหา');break}i=ui.ne?byId(S.notes,ui.ne):-1;if(i>-1){S.notes[i].t=nt||'(ไม่มีหัวข้อ)';S.notes[i].b=nb}else S.notes.unshift({id:uid(),t:nt||'(ไม่มีหัวข้อ)',b:nb});ui.ne=null;save();render();break;
+  case 'nedit':ui.ne=k;render();break;
+  case 'ncancel':ui.ne=null;render();break;
+  case 'ndel':ask('ลบโน้ตนี้หรือไม่',function(){S.notes=S.notes.filter(function(x){return x.id!==k});ui.ne=null;save()});break;
+  case 'hcopy':i=byId(S.hist,k);if(i>-1)copyText(S.hist[i].s);break;
+  case 'hdel':ask('ลบรายการประวัตินี้หรือไม่',function(){S.hist=S.hist.filter(function(x){return x.id!==k});save()});break;
+  case 'hclear':ask('ล้างประวัติการคำนวณทั้งหมดหรือไม่',function(){S.hist=[];save()});break;
+  case 'bcopy':copyText($('bk').value);break;
+  case 'bdl':try{var bl=new Blob([JSON.stringify(backup(),null,1)],{type:'application/json'}),u=URL.createObjectURL(bl),an=document.createElement('a');an.href=u;an.download='logipocket-backup-'+iso()+'.json';document.body.appendChild(an);an.click();document.body.removeChild(an);setTimeout(function(){URL.revokeObjectURL(u)},1000);toast('ถ้าไม่มีไฟล์ขึ้น ให้ใช้ปุ่มคัดลอกแทน')}catch(x){toast('ดาวน์โหลดไม่ได้ ให้ใช้ปุ่มคัดลอกแทน')}break;
+  case 'bimp':restore();break;
+ }}catch(err){console.error(err);toast('เกิดข้อผิดพลาด ลองใหม่อีกครั้ง')}
+});
+document.addEventListener('input',function(e){var t=e.target;if(t.id==='gs')$('sres').innerHTML=srch(t.value);else if(t.id==='dq'){ui.d=t.value;$('dlist').innerHTML=dlist()}});
+document.addEventListener('change',function(e){if(e.target.id==='impf'){var f=e.target.files[0];if(!f)return;var r=new FileReader();r.onload=function(){$('imp').value=String(r.result)};r.readAsText(f)}});
+
+render();
+</script>
+</body>
+</html>
